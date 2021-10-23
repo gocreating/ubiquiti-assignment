@@ -3,7 +3,7 @@ import jwt
 
 from django.http import JsonResponse
 
-from config import ACCESS_TOKEN_COOKIE_KEY
+from config import ACCESS_TOKEN_COOKIE_KEY, CSRF_TOKEN_COOKIE_KEY, CSRF_TOKEN_HEADER_KEY
 from db import database
 from models.user import User
 
@@ -41,6 +41,21 @@ def login_required(func):
         except jwt.ExpiredSignatureError:
             return JsonResponse(None, status=401, safe=False)
         except:
+            return JsonResponse(None, status=403, safe=False)
+
+        response = func(request, *args, **kwargs)
+        return response
+
+    return middleware
+
+
+def double_submit_csrf_token_required(func):
+
+    @functools.wraps(func)
+    def middleware(request, *args, **kwargs):
+        csrf_token_in_cookie = request.COOKIES.get(CSRF_TOKEN_COOKIE_KEY)
+        csrf_token_in_header = request.headers.get(CSRF_TOKEN_HEADER_KEY)
+        if csrf_token_in_cookie is None or csrf_token_in_header is None or csrf_token_in_cookie != csrf_token_in_header:
             return JsonResponse(None, status=403, safe=False)
 
         response = func(request, *args, **kwargs)

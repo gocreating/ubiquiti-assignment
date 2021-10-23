@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.urls import path
 
 from config import ACCESS_TOKEN_COOKIE_KEY
-from decorators import login_required, managed_transaction
+from decorators import double_submit_csrf_token_required, login_required, managed_transaction
 from models.user import User
 
 
@@ -19,6 +19,7 @@ def list_users(request):
     users = request.session.query(User).all()
     return JsonResponse([user.to_dict() for user in users], safe=False)
 
+@double_submit_csrf_token_required
 @managed_transaction
 def create_user(request):
     data = json.loads(request.body)
@@ -46,6 +47,7 @@ def search_user(request):
             return JsonResponse(None, safe=False)
         return JsonResponse(filtered_user.to_dict(), safe=False)
 
+@double_submit_csrf_token_required
 @managed_transaction
 def signin_user(request):
     if request.method == 'POST':
@@ -61,6 +63,7 @@ def signin_user(request):
         response.set_cookie(ACCESS_TOKEN_COOKIE_KEY, access_token)
         return response
 
+@double_submit_csrf_token_required
 @managed_transaction
 @login_required
 def handle_user(request, user_id):
