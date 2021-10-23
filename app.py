@@ -1,3 +1,4 @@
+import json
 from urllib.parse import parse_qs
 
 from django.http import JsonResponse
@@ -16,6 +17,12 @@ def handle_users(request):
     if request.method == 'GET':
         users = request.session.query(User).all()
         return JsonResponse([user.to_dict() for user in users], safe=False)
+    elif request.method == 'POST':
+        data = json.loads(request.body)
+        user = User(**data)
+        request.session.add(user)
+        request.session.flush()
+        return JsonResponse(user.to_dict(), safe=False)
 
 @managed_transaction
 def search_user(request):
