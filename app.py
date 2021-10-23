@@ -73,6 +73,13 @@ def handle_user(request, user_id):
     elif request.method == 'DELETE':
         request.session.delete(user)
         return JsonResponse(None, safe=False)
+    elif request.method == 'PATCH':
+        data = json.loads(request.body)
+        if any([k in data for k in ['id', 'acct', 'pwd']]):
+            return JsonResponse(None, status=403, safe=False)
+        for k, v in data.items():
+            setattr(user, k, v)
+        return JsonResponse(user.to_dict(), safe=False)
 
 urlpatterns = [
     path('users/', handle_users),
