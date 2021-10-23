@@ -1,0 +1,12 @@
+# Editor
+.vscode/settings.json
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Build
+/exported-data
+/download-data
+/logs
