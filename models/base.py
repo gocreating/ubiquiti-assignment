@@ -10,4 +10,11 @@ class BaseClass:
     created_at = Column(DateTime, index=True, server_default=func.now())
     updated_at = Column(DateTime, index=True, server_default=func.now(), onupdate=func.now())
 
+    def to_dict(self) -> dict:
+        return {
+            'id': self.id,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at,
+        }
+
 Base = declarative_base(cls=BaseClass, metadata=Database.get_metadata())
