@@ -29,7 +29,16 @@ def search_user(request):
             return JsonResponse(None, safe=False)
         return JsonResponse(filtered_user.to_dict(), safe=False)
 
+@managed_transaction
+def handle_user(request, user_id):
+    if request.method == 'GET':
+        user = request.session.query(User).get(user_id)
+        if user is None:
+            return JsonResponse(None, safe=False)
+        return JsonResponse(user.to_dict(), safe=False)
+
 urlpatterns = [
     path('users/', handle_users),
     path('users/search/', search_user),
+    path('users/<int:user_id>/', handle_user),
 ]
