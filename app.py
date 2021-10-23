@@ -64,11 +64,15 @@ def signin_user(request):
 @managed_transaction
 @login_required
 def handle_user(request, user_id):
+    user = request.session.query(User).get(user_id)
+    if user is None:
+        return JsonResponse(None, status=404, safe=False)
+
     if request.method == 'GET':
-        user = request.session.query(User).get(user_id)
-        if user is None:
-            return JsonResponse(None, safe=False)
         return JsonResponse(user.to_dict(), safe=False)
+    elif request.method == 'DELETE':
+        request.session.delete(user)
+        return JsonResponse(None, safe=False)
 
 urlpatterns = [
     path('users/', handle_users),
